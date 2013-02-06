@@ -566,6 +566,15 @@ static void set_mode(byte mode)
         set_throttle_mode(THROTTLE_HOLD);
         break;
 
+#if HUCH == ENABLED
+    case EXT_CTRL_MODE:
+    	memset(&ext_ctrl_msg, sizeof(mavlink_huch_ext_ctrl_t), 0);
+    	yaw_mode = YAW_HOLD;
+    	roll_pitch_mode = ROLL_PITCH_STABLE;
+    	throttle_mode = THROTTLE_MANUAL;
+    	break;
+#endif
+
     default:
         break;
     }

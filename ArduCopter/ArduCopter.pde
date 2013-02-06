@@ -366,6 +366,7 @@ AP_RangeFinder_MaxsonarXL sonar(&sonar_analog_source, &sonar_mode_filter);
 // Global variables
 ////////////////////////////////////////////////////////////////////////////////
 
+
 /* Radio values
  *               Channel assignments
  *                       1	Ailerons (rudder if no ailerons)
@@ -643,6 +644,13 @@ static uint32_t loiter_time;
 // The synthetic location created to make the copter do circles around a WP
 static struct   Location circle_WP;
 
+////////////////////////////////////////////////////////////////////////////////
+// ExtCtrl Mode
+////////////////////////////////////////////////////////////////////////////////
+// Used to control via MAVLink Messages as specified in the HUCH extensions
+#if HUCH == ENABLED
+static mavlink_huch_ext_ctrl_t ext_ctrl_msg;
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // CH7 control
@@ -1507,6 +1515,14 @@ void update_yaw_mode(void)
     switch(yaw_mode) {
 
     case YAW_HOLD:
+#if HUCH == ENABLED
+        if(control_mode == EXT_CTRL_MODE){
+            if(ext_ctrl_msg.mask & 0x04) // yaw not additive?
+                g.rc_4.control_in = ext_ctrl_msg.yaw;
+            else
+                g.rc_4.control_in += ext_ctrl_msg.yaw;
+        }
+#endif
         // heading hold at heading held in nav_yaw but allow input from pilot
         get_yaw_rate_stabilized_ef(g.rc_4.control_in);
         break;
@@ -1640,6 +1656,19 @@ void update_roll_pitch_mode(void)
             }
 		}
 #else  // !HELI_FRAME
+#if HUCH == ENABLED
+      if(control_mode == EXT_CTRL_MODE) {
+        // mix in user control with external control
+        if(ext_ctrl_msg.mask & 0x01) // roll not additive?
+            g.rc_1.control_in = ext_ctrl_msg.roll;
+        else
+          g.rc_1.control_in += ext_ctrl_msg.roll;
+        if(ext_ctrl_msg.mask & 0x02) // pitch not additive?
+            g.rc_2.control_in = ext_ctrl_msg.pitch;
+        else
+          g.rc_2.control_in += ext_ctrl_msg.pitch;
+      }
+#endif
 		if(g.axis_enabled) {
             get_roll_rate_stabilized_ef(g.rc_1.control_in);
             get_pitch_rate_stabilized_ef(g.rc_2.control_in);
@@ -1863,6 +1892,12 @@ void update_throttle_mode(void)
     switch(throttle_mode) {
 
     case THROTTLE_MANUAL:
+#if HUCH == ENABLED
+        if(control_mode == EXT_CTRL_MODE){
+            if(ext_ctrl_msg.mask & 0x08) // throttle control activated?
+                g.rc_3.control_in = min(ext_ctrl_msg.thrust, g.rc_3.control_in);
+        }
+#endif
         // completely manual throttle
         if(g.rc_3.control_in <= 0){
             set_throttle_out(0, false);

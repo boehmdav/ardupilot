@@ -11,6 +11,11 @@
 #define ENABLE ENABLED
 #define DISABLE DISABLED
 
+// HUCH extensions
+#ifndef HUCH
+#define HUCH DISABLED
+#endif
+
 // Flight modes
 // ------------
 #define YAW_HOLD                        0       // heading hold at heading in nav_yaw but allow input from pilot
@@ -39,7 +44,6 @@
 #define THROTTLE_HOLD                       6   // alt hold plus pilot input of climb rate
 #define THROTTLE_AUTO                       7   // auto pilot altitude controller with target altitude held in next_WP.alt
 #define THROTTLE_LAND                       8   // landing throttle controller
-
 
 // active altitude sensor
 // ----------------------
@@ -137,7 +141,12 @@
                                         // sensor
 #define TOY_A 11                        // THOR Enum for Toy mode
 #define TOY_M 12                        // THOR Enum for Toy mode
+#ifdef HUCH
+#define EXT_CTRL_MODE 13  // external control
+#define NUM_MODES 14
+#else
 #define NUM_MODES 13
+#endif
 
 // CH_6 Tuning
 // -----------
