@@ -2063,6 +2063,17 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             }
             break;
         }
+#if HUCH == ENABLED
+    case MAVLINK_MSG_ID_HUCH_EXT_CTRL:
+        {
+            if(control_mode != EXT_CTRL_MODE)
+              break;
+            if(mavlink_msg_huch_ext_ctrl_get_target_system(msg) != mavlink_system.sysid)
+              break;
+            mavlink_msg_huch_ext_ctrl_decode(msg, &ext_ctrl_msg);
+            break;
+        }
+#endif
 
 	} // end switch
 } // end handle mavlink

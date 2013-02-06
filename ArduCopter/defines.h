@@ -11,6 +11,11 @@
 #define ENABLE ENABLED
 #define DISABLE DISABLED
 
+// HUCH extensions
+#ifndef HUCH
+#define HUCH DISABLED
+#endif
+
 // Flight modes
 // ------------
 #define YAW_HOLD 			0
@@ -26,7 +31,6 @@
 #define THROTTLE_MANUAL 	0
 #define THROTTLE_HOLD 		1
 #define THROTTLE_AUTO		2
-
 
 // active altitude sensor
 // ----------------------
@@ -122,7 +126,12 @@
 #define LAND 9				// AUTO control
 #define OF_LOITER 10		// Hold a single location using optical flow sensor
 #define APPROACH 11			// AUTO control
+#ifdef HUCH
+#define EXT_CTRL_MODE 12  // external control
+#define NUM_MODES 13
+#else
 #define NUM_MODES 12
+#endif
 
 #define SIMPLE_1 1
 #define SIMPLE_2 2

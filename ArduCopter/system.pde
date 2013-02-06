@@ -382,13 +382,13 @@ static void set_mode(byte mode)
 	// if we don't have GPS lock
 	if(home_is_set == false){
 		// our max mode should be
-		if (mode > ALT_HOLD && mode != OF_LOITER)
+		if (mode > ALT_HOLD && mode != OF_LOITER && mode != EXT_CTRL_MODE)
 			mode = STABILIZE;
 	}
 
 	// nothing but OF_LOITER for OptFlow only
 	if (g.optflow_enabled && GPS_enabled == false){
-		if (mode > ALT_HOLD && mode != OF_LOITER)
+		if (mode > ALT_HOLD && mode != OF_LOITER && mode != EXT_CTRL_MODE)
 			mode = STABILIZE;
 	}
 
@@ -510,6 +510,15 @@ static void set_mode(byte mode)
 			throttle_mode 	= OF_LOITER_THR;
 			set_next_WP(&current_loc);
 			break;
+
+#if HUCH == ENABLED
+    case EXT_CTRL_MODE:
+      memset(&ext_ctrl_msg, sizeof(mavlink_huch_ext_ctrl_t), 0);
+			yaw_mode = YAW_HOLD;
+			roll_pitch_mode = ROLL_PITCH_STABLE;
+			throttle_mode = THROTTLE_MANUAL;
+      break;
+#endif
 
 		default:
 			break;

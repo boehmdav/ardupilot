@@ -318,7 +318,7 @@ ModeFilterInt16_Size5 sonar_mode_filter(2);
 // Global variables
 ////////////////////////////////////////////////////////////////////////////////
 
-static const char* flight_mode_strings[] = {
+static const char* flight_mode_strings[NUM_MODES] = {
 	"STABILIZE",
 	"ACRO",
 	"ALT_HOLD",
@@ -329,7 +329,12 @@ static const char* flight_mode_strings[] = {
 	"CIRCLE",
 	"POSITION",
 	"LAND",
-	"OF_LOITER"};
+	"OF_LOITER",
+  "APPROACH"
+#if HUCH == ENABLED
+, "EXT_CTRL_MODE"
+#endif
+  };
 
 /* Radio values
 		Channel assignments
@@ -592,6 +597,13 @@ static uint32_t loiter_time;
 // The synthetic location created to make the copter do circles around a WP
 static struct 	Location circle_WP;
 
+////////////////////////////////////////////////////////////////////////////////
+// ExtCtrl Mode
+////////////////////////////////////////////////////////////////////////////////
+// Used to control via MAVLink Messages as specified in the HUCH extensions
+#if HUCH == ENABLED
+static mavlink_huch_ext_ctrl_t ext_ctrl_msg;
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // CH7 control
@@ -1451,14 +1463,27 @@ void update_yaw_mode(void)
 			break;
 
 		case YAW_HOLD:
-			// calcualte new nav_yaw offset
+#if HUCH == ENABLED
+      if(control_mode == EXT_CTRL_MODE){
+        if(ext_ctrl_msg.mask & 0x04) // yaw not additive?
+        {
+          if(g.rc_4.control_in == 0) // test if user does nothing
+            g.rc_4.control_in = ext_ctrl_msg.yaw;
+        }else{
+          g.rc_4.control_in += ext_ctrl_msg.yaw;
+        }
+      }
+			// calculate new nav_yaw offset
+			if (control_mode <= STABILIZE || control_mode == EXT_CTRL_MODE){
+#else
+			// calculate new nav_yaw offset
 			if (control_mode <= STABILIZE){
-				nav_yaw = get_nav_yaw_offset(g.rc_4.control_in, g.rc_3.control_in);
+#endif
+        nav_yaw = get_nav_yaw_offset(g.rc_4.control_in, g.rc_3.control_in);
 			}else{
 				nav_yaw = get_nav_yaw_offset(g.rc_4.control_in, 1);
 			}
 			break;
-
 		case YAW_LOOK_AT_HOME:
 			//nav_yaw updated in update_navigation()
 			break;
@@ -1522,7 +1547,27 @@ void update_roll_pitch_mode(void)
 			if(do_simple && new_radio_frame){
 				update_simple_mode();
 			}
-
+#if HUCH == ENABLED
+      if(control_mode == EXT_CTRL_MODE){
+        // mix in user control with external control
+        if(ext_ctrl_msg.mask & 0x01) // roll not additive?
+        {
+          if(g.rc_1.control_in == 0) // test if user does nothing
+            g.rc_1.control_in = ext_ctrl_msg.roll;
+        }
+        else{
+          g.rc_1.control_in += ext_ctrl_msg.roll;
+        }
+        if(ext_ctrl_msg.mask & 0x02) // pitch not additive?
+        {
+          if(g.rc_2.control_in == 0) // test if user does nothing
+            g.rc_2.control_in = ext_ctrl_msg.pitch;
+        }
+        else{
+          g.rc_2.control_in += ext_ctrl_msg.pitch;
+        }
+      }
+#endif
 			// in this mode, nav_roll and nav_pitch = the iterm
 			g.rc_1.servo_out = get_stabilize_roll(g.rc_1.control_in);
 			g.rc_2.servo_out = get_stabilize_pitch(g.rc_2.control_in);
@@ -1628,6 +1673,12 @@ void update_throttle_mode(void)
 			    #if FRAME_CONFIG == HELI_FRAME
 				    g.rc_3.servo_out = heli_get_angle_boost(g.rc_3.control_in);
 				#else
+#if HUCH == ENABLED
+          if(control_mode == EXT_CTRL_MODE){
+            if(ext_ctrl_msg.mask & 0x08) // throttle control activated?
+              g.rc_3.control_in = min(ext_ctrl_msg.thrust, g.rc_3.control_in);
+          }
+#endif
 					if (control_mode == ACRO){
 						g.rc_3.servo_out 	= g.rc_3.control_in;
 					}else{

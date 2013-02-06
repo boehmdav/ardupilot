@@ -125,7 +125,11 @@ static inline int comm_get_txspace(mavlink_channel_t chan)
 
 #define MAVLINK_USE_CONVENIENCE_FUNCTIONS
 #if MAVLINK10==ENABLED
+#ifdef HUCH
+# include "include/mavlink/v1.0/huch/mavlink.h"
+#else
 # include "include/mavlink/v1.0/ardupilotmega/mavlink.h"
+#endif
 #else
 # include "include/mavlink/v0.9/ardupilotmega/mavlink.h"
 #endif
