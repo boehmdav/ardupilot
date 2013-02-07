@@ -142,7 +142,7 @@
 #define TOY_A 11                        // THOR Enum for Toy mode
 #define TOY_M 12                        // THOR Enum for Toy mode
 #ifdef HUCH
-#define EXT_CTRL_MODE 13  // external control
+#define EXT_CTRL_MODE 13                // external control
 #define NUM_MODES 14
 #else
 #define NUM_MODES 13

@@ -1672,36 +1672,24 @@ void update_roll_pitch_mode(void)
         if(ap.simple_mode && ap_system.new_radio_frame) {
             update_simple_mode();
         }
-
-        Serial.print("Control_mode: "); Serial.println(control_mode);
-        Serial1.print("Control_mode: "); Serial1.println(control_mode);
 #if HUCH == ENABLED
-      if(control_mode == EXT_CTRL_MODE) {
-        Serial.print("ROLL: "); Serial.println(ext_ctrl_msg.roll);
-        Serial1.print("ROLL: "); Serial1.println(ext_ctrl_msg.roll);
-        Serial.print("PITCH: "); Serial.println(ext_ctrl_msg.pitch);
-        Serial1.print("PITCH: "); Serial1.println(ext_ctrl_msg.pitch);
-        if(ext_ctrl_msg.mask & 0x01) {// roll not additive?
-            g.rc_1.control_in = ext_ctrl_msg.roll;
+        if(control_mode == EXT_CTRL_MODE) {
+            if(ext_ctrl_msg.mask & 0x01) // roll not additive?
+                control_roll = ext_ctrl_msg.roll;
+            else
+                control_roll = g.rc_1.control_in + ext_ctrl_msg.roll;
+            if(ext_ctrl_msg.mask & 0x02) // pitch not additive?
+                control_pitch = ext_ctrl_msg.pitch;
+            else 
+                control_pitch = g.rc_2.control_in + ext_ctrl_msg.pitch;
+        } else {
+            control_roll            = g.rc_1.control_in;
+            control_pitch           = g.rc_2.control_in;
         }
-        else {
-          g.rc_1.control_in += ext_ctrl_msg.roll;
-          //send_text(SEVERITY_LOW,PSTR("roll additive"));
-          }
-        if(ext_ctrl_msg.mask & 0x02) {// pitch not additive?
-            g.rc_2.control_in = ext_ctrl_msg.pitch;
-            //send_text(SEVERITY_LOW,PSTR("pitch not additive"));
-        }
-        else {
-          g.rc_2.control_in += ext_ctrl_msg.pitch;
-          //send_text(SEVERITY_LOW,PSTR("pitch additive"));
-        }
-      }
-#endif
-
+#else
         control_roll            = g.rc_1.control_in;
         control_pitch           = g.rc_2.control_in;
-
+#endif
         get_stabilize_roll(control_roll);
         get_stabilize_pitch(control_pitch);
 

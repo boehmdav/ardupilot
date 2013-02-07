@@ -393,7 +393,11 @@ static void set_mode(byte mode)
 {
     // Switch to stabilize mode if requested mode requires a GPS lock
     if(!ap.home_is_set) {
-        if (mode > ALT_HOLD && mode != TOY_A && mode != TOY_M && mode != OF_LOITER && mode != LAND && mode != EXT_CTRL_MODE) {
+        if (mode > ALT_HOLD && mode != TOY_A && mode != TOY_M && mode != OF_LOITER && mode != LAND
+#if HUCH == ENABLED
+         && mode != EXT_CTRL_MODE
+#endif
+         ) {
             mode = STABILIZE;
         }
     }
