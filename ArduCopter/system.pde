@@ -393,7 +393,7 @@ static void set_mode(byte mode)
 {
     // Switch to stabilize mode if requested mode requires a GPS lock
     if(!ap.home_is_set) {
-        if (mode > ALT_HOLD && mode != TOY_A && mode != TOY_M && mode != OF_LOITER && mode != LAND) {
+        if (mode > ALT_HOLD && mode != TOY_A && mode != TOY_M && mode != OF_LOITER && mode != LAND && mode != EXT_CTRL_MODE) {
             mode = STABILIZE;
         }
     }
@@ -732,6 +732,11 @@ print_flight_mode(uint8_t mode)
     case TOY_A:
         cliSerial->print_P(PSTR("TOY_A"));
         break;
+#if HUCH == ENABLED
+    case EXT_CTRL_MODE:
+    	cliSerial->print_P(PSTR("EXT_CTRL"));
+    	break;
+#endif
     default:
         cliSerial->print_P(PSTR("---"));
         break;

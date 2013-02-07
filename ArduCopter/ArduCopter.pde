@@ -1656,19 +1656,6 @@ void update_roll_pitch_mode(void)
             }
 		}
 #else  // !HELI_FRAME
-#if HUCH == ENABLED
-      if(control_mode == EXT_CTRL_MODE) {
-        // mix in user control with external control
-        if(ext_ctrl_msg.mask & 0x01) // roll not additive?
-            g.rc_1.control_in = ext_ctrl_msg.roll;
-        else
-          g.rc_1.control_in += ext_ctrl_msg.roll;
-        if(ext_ctrl_msg.mask & 0x02) // pitch not additive?
-            g.rc_2.control_in = ext_ctrl_msg.pitch;
-        else
-          g.rc_2.control_in += ext_ctrl_msg.pitch;
-      }
-#endif
 		if(g.axis_enabled) {
             get_roll_rate_stabilized_ef(g.rc_1.control_in);
             get_pitch_rate_stabilized_ef(g.rc_2.control_in);
@@ -1685,6 +1672,32 @@ void update_roll_pitch_mode(void)
         if(ap.simple_mode && ap_system.new_radio_frame) {
             update_simple_mode();
         }
+
+        Serial.print("Control_mode: "); Serial.println(control_mode);
+        Serial1.print("Control_mode: "); Serial1.println(control_mode);
+#if HUCH == ENABLED
+      if(control_mode == EXT_CTRL_MODE) {
+        Serial.print("ROLL: "); Serial.println(ext_ctrl_msg.roll);
+        Serial1.print("ROLL: "); Serial1.println(ext_ctrl_msg.roll);
+        Serial.print("PITCH: "); Serial.println(ext_ctrl_msg.pitch);
+        Serial1.print("PITCH: "); Serial1.println(ext_ctrl_msg.pitch);
+        if(ext_ctrl_msg.mask & 0x01) {// roll not additive?
+            g.rc_1.control_in = ext_ctrl_msg.roll;
+        }
+        else {
+          g.rc_1.control_in += ext_ctrl_msg.roll;
+          //send_text(SEVERITY_LOW,PSTR("roll additive"));
+          }
+        if(ext_ctrl_msg.mask & 0x02) {// pitch not additive?
+            g.rc_2.control_in = ext_ctrl_msg.pitch;
+            //send_text(SEVERITY_LOW,PSTR("pitch not additive"));
+        }
+        else {
+          g.rc_2.control_in += ext_ctrl_msg.pitch;
+          //send_text(SEVERITY_LOW,PSTR("pitch additive"));
+        }
+      }
+#endif
 
         control_roll            = g.rc_1.control_in;
         control_pitch           = g.rc_2.control_in;

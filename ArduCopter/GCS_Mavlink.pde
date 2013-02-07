@@ -974,6 +974,7 @@ GCS_MAVLINK::send_text(gcs_severity severity, const prog_char_t *str)
 void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 {
     struct Location tell_command = {};                                  // command for telemetry
+    char tmp[32];
     switch (msg->msgid) {
 
     case MAVLINK_MSG_ID_REQUEST_DATA_STREAM:     //66
@@ -1976,10 +1977,18 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 #endif // AP_LIMITS ENABLED
 #if HUCH == ENABLED
     case MAVLINK_MSG_ID_HUCH_EXT_CTRL: {
-        if(control_mode != EXT_CTRL_MODE)
+        //send_text(SEVERITY_LOW,PSTR("EXT_CTRL MSG received "));    
+        //snprintf(tmp,32,"Mode: %d, NUM_MODES: %d",control_mode,NUM_MODES);
+        //snprintf(tmp,32,"Mode: %d, NUM_MODES: %d",control_mode,NUM_MODES);
+        //send_text(SEVERITY_LOW,tmp);
+        if(control_mode != EXT_CTRL_MODE) {
+            //send_text(SEVERITY_LOW,PSTR("EXT_CTRL: Wrong control mode"));
             break;
-        if(mavlink_msg_huch_ext_ctrl_get_target_system(msg) != mavlink_system.sysid)
+        }
+        if(mavlink_msg_huch_ext_ctrl_get_target_system(msg) != mavlink_system.sysid) {
+            //send_text(SEVERITY_LOW,PSTR("EXT_CTRL wrong target system "));    
             break;
+        }
         mavlink_msg_huch_ext_ctrl_decode(msg, &ext_ctrl_msg);
         break;
     }

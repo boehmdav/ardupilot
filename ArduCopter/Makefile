@@ -44,4 +44,5 @@ sitl-y6:
 
 etags:
 	cd .. && etags -f ArduCopter/TAGS --langmap=C++:.pde.cpp.h $$(git ls-files ArduCopter libraries)
-
+huch:
+	make -f Makefile EXTRAFLAGS="-DHUCH"
