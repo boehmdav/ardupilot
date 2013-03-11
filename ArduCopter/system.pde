@@ -573,9 +573,15 @@ static void set_mode(byte mode)
 #if HUCH == ENABLED
     case EXT_CTRL_MODE:
     	memset(&ext_ctrl_msg, sizeof(mavlink_huch_ext_ctrl_t), 0);
-    	yaw_mode = YAW_HOLD;
-    	roll_pitch_mode = ROLL_PITCH_STABLE;
-    	throttle_mode = THROTTLE_MANUAL;
+    	ap.manual_throttle = false;
+    	ap.manual_attitude = true;
+    	set_roll_pitch_mode(ROLL_PITCH_STABLE);
+    	set_throttle_mode(ALT_HOLD_THR);
+    	set_yaw_mode(YAW_HOLD);
+    	
+    	//yaw_mode = YAW_HOLD;
+    	//roll_pitch_mode = ROLL_PITCH_STABLE;
+    	//throttle_mode = THROTTLE_AUTO;
     	break;
 #endif
 

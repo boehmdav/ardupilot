@@ -11,6 +11,8 @@ static void init_sonar(void)
 {
   #if CONFIG_SONAR_SOURCE == SONAR_SOURCE_ADC
     sonar.calculate_scaler(g.sonar_type, 3.3);
+  #elif CONFIG_SONAR_SOURCE == SONAR_SOURCE_I2C
+
   #else
     sonar.calculate_scaler(g.sonar_type, 5.0);
   #endif
@@ -42,6 +44,11 @@ static int16_t read_sonar(void)
     }
 
     int16_t temp_alt = sonar.read();
+    
+    #if CONFIG_SONAR_SOURCE == SONAR_SOURCE_I2C
+    // Called with 10Hz -> No delay necessary
+    sonar.take_reading();
+    #endif
 
     if(temp_alt >= sonar.min_distance && temp_alt <= sonar.max_distance * 0.70) {
         if( sonar_alt_health < SONAR_ALT_HEALTH_MAX ) {

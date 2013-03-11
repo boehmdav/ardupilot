@@ -46,3 +46,10 @@ etags:
 	cd .. && etags -f ArduCopter/TAGS --langmap=C++:.pde.cpp.h $$(git ls-files ArduCopter libraries)
 huch:
 	make -f Makefile EXTRAFLAGS="-DHUCH"
+	
+srf:
+	make -f Makefile EXTRAFLAGS="-DCONFIG_SONAR_SOURCE=SONAR_SOURCE_I2C"
+
+huchsrf:
+	make -f Makefile EXTRAFLAGS="-DCONFIG_SONAR_SOURCE=SONAR_SOURCE_I2C -DHUCH"
+

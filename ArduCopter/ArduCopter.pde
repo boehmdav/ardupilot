@@ -351,7 +351,11 @@ AP_AnalogSource_ADC sonar_analog_source( &adc, CONFIG_SONAR_SOURCE_ADC_CHANNEL, 
  #elif CONFIG_SONAR_SOURCE == SONAR_SOURCE_ANALOG_PIN
 AP_AnalogSource_Arduino sonar_analog_source(CONFIG_SONAR_SOURCE_ANALOG_PIN);
  #endif
+ #if CONFIG_SONAR_SOURCE == SONAR_SOURCE_I2C
+AP_RangeFinder_SRF02 sonar(&sonar_mode_filter);
+ #else
 AP_RangeFinder_MaxsonarXL sonar(&sonar_analog_source, &sonar_mode_filter);
+ #endif
 #endif
 
 // agmatthews USERHOOKS
@@ -1521,6 +1525,8 @@ void update_yaw_mode(void)
                 g.rc_4.control_in = ext_ctrl_msg.yaw;
             else
                 g.rc_4.control_in += ext_ctrl_msg.yaw;
+        } else {
+            ext_ctrl_msg.yaw = 0;
         }
 #endif
         // heading hold at heading held in nav_yaw but allow input from pilot
@@ -1683,6 +1689,8 @@ void update_roll_pitch_mode(void)
             else 
                 control_pitch = g.rc_2.control_in + ext_ctrl_msg.pitch;
         } else {
+            ext_ctrl_msg.pitch = 0;
+            ext_ctrl_msg.roll = 0;
             control_roll            = g.rc_1.control_in;
             control_pitch           = g.rc_2.control_in;
         }
@@ -1897,6 +1905,8 @@ void update_throttle_mode(void)
         if(control_mode == EXT_CTRL_MODE){
             if(ext_ctrl_msg.mask & 0x08) // throttle control activated?
                 g.rc_3.control_in = min(ext_ctrl_msg.thrust, g.rc_3.control_in);
+        } else {
+            ext_ctrl_msg.thrust = 0;
         }
 #endif
         // completely manual throttle
@@ -1996,6 +2006,14 @@ void update_throttle_mode(void)
         break;
 
     case THROTTLE_HOLD:
+#if HUCH == ENABLED
+        if(control_mode == EXT_CTRL_MODE){
+            if(ext_ctrl_msg.mask & 0x08) // throttle control activated?
+                g.rc_3.control_in = min(ext_ctrl_msg.thrust, g.rc_3.control_in);
+        } else {
+            ext_ctrl_msg.thrust = 0;
+        }
+#endif
         // alt hold plus pilot input of climb rate
         pilot_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
         if( sonar_alt_health >= SONAR_ALT_HEALTH_MAX ) {

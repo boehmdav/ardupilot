@@ -934,8 +934,15 @@ GCS_MAVLINK::data_stream_send(void)
         //cliSerial->printf("mav6 %d\n", (int)streamRateExtra1.get());
     }
 
+    /*original code
     if (stream_trigger(STREAM_EXTRA2)) {
         send_message(MSG_VFR_HUD);
+        //cliSerial->printf("mav7 %d\n", (int)streamRateExtra2.get());
+    }*/
+
+    if (stream_trigger(STREAM_EXTRA2)) {
+        //send_message(MSG_VFR_HUD);
+        send_message(MSG_ATTITUDE);
         //cliSerial->printf("mav7 %d\n", (int)streamRateExtra2.get());
     }
 
