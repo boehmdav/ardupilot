@@ -296,6 +296,16 @@ static void NOINLINE send_hwstatus(mavlink_channel_t chan)
 }
 #endif
 
+#if HUCH == ENABLED
+static void NOINLINE send_huch_ranger(mavlink_channel_t chan)
+{
+    mavlink_msg_huch_ranger_send(
+        chan,
+        sonar_alt,
+        0,
+        0);
+}
+#endif
 
 static void NOINLINE send_gps_raw(mavlink_channel_t chan)
 {
@@ -660,7 +670,12 @@ static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id,
         send_hwstatus(chan);
 #endif
         break;
-
+#if HUCH == ENABLED
+    case MSG_HUCH_RANGER:
+        CHECK_PAYLOAD_SIZE(HUCH_RANGER);
+        send_huch_ranger(chan);
+        break;
+#endif
     case MSG_RETRY_DEFERRED:
         break; // just here to prevent a warning
     }
@@ -943,6 +958,9 @@ GCS_MAVLINK::data_stream_send(void)
     if (stream_trigger(STREAM_EXTRA2)) {
         //send_message(MSG_VFR_HUD);
         send_message(MSG_ATTITUDE);
+#if HUCH == ENABLED
+        send_message(MSG_HUCH_RANGER);
+#endif
         //cliSerial->printf("mav7 %d\n", (int)streamRateExtra2.get());
     }
 

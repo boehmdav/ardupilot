@@ -266,6 +266,9 @@ enum ap_message {
     MSG_AHRS,
     MSG_SIMSTATE,
     MSG_HWSTATUS,
+#if HUCH == ENABLED
+    MSG_HUCH_RANGER,    
+#endif
     MSG_RETRY_DEFERRED // this must be last
 };
 
