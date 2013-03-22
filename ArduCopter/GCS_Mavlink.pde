@@ -302,8 +302,8 @@ static void NOINLINE send_huch_ranger(mavlink_channel_t chan)
     mavlink_msg_huch_ranger_send(
         chan,
         sonar_alt,
-        0,
-        0);
+        (baro_alt & 65535),
+        (baro_alt >> 16));
 }
 #endif
 

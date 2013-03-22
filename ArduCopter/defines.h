@@ -14,6 +14,9 @@
 // HUCH extensions
 #ifndef HUCH
 #define HUCH DISABLED
+#else
+#undef HUCH
+#define HUCH ENABLED
 #endif
 
 // Flight modes
@@ -142,7 +145,7 @@
                                         // sensor
 #define TOY_A 11                        // THOR Enum for Toy mode
 #define TOY_M 12                        // THOR Enum for Toy mode
-#ifdef HUCH
+#if HUCH == ENABLED
 #define EXT_CTRL_MODE 13                // external control
 #define NUM_MODES 14
 #else

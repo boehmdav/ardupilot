@@ -1,6 +1,10 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
+#ifdef HUCH
+#define THISFIRMWARE "ArduCopter V2.9.1 huch"
+#else
 #define THISFIRMWARE "ArduCopter V2.9.1"
+#endif
 /*
  *  ArduCopter Version 2.9
  *  Lead author:	Jason Short

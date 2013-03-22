@@ -576,7 +576,7 @@ static void set_mode(byte mode)
     	ap.manual_throttle = false;
     	ap.manual_attitude = true;
     	set_roll_pitch_mode(ROLL_PITCH_STABLE);
-    	set_throttle_mode(ALT_HOLD_THR);
+    	set_throttle_mode(STABILIZE_THROTTLE);
     	set_yaw_mode(YAW_HOLD);
     	
     	//yaw_mode = YAW_HOLD;
